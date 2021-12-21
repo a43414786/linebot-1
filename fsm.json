@@ -1,0 +1,53 @@
+{
+    "states":["asleep","hanging out", "hungry", "sweaty", "saving the world"],
+
+    "state":
+    [
+        {
+            "trigger" : "wake_up",
+            "source" : "asleep",
+            "dest" : "hanging out"
+        },
+        {   
+            "trigger" : "work_out",
+            "source" : "hanging out",
+            "dest" : "hungry"
+        },
+        {   
+            "trigger" : "done",
+            "source" : "hanging out",
+            "dest" : "asleep"
+        },
+        {
+            "trigger" : "eat",
+            "source" : "hungry",
+            "dest" : "hanging out"
+        },
+        {
+            "trigger" : "distress_call",
+            "source" : "*",
+            "dest" : "saving the world"
+        },
+        {
+            "trigger" : "complete_mission",
+            "source" : "saving the world",
+            "dest" : "sweaty"
+        },
+        {
+            "trigger" : "clean_up",
+            "source" : "sweaty",
+            "dest" : "asleep"
+        },
+        {
+            "trigger" : "clean_up",
+            "source" : "sweaty",
+            "dest" : "hanging out"
+        },
+        {
+            "trigger" : "nap",
+            "source" :  "*", 
+            "dest" : "asleep"
+        }               
+    ],
+    "init" : "asleep"
+}

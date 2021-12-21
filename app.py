@@ -19,7 +19,13 @@ from Function import *
 import tempfile, os
 import datetime
 import time
+import numpy as np
 #======python的函數庫==========
+import fsm
+import images
+
+
+acgimgs = images.acgimgs
 
 app = Flask(__name__)
 static_tmp_path = os.path.join(os.path.dirname(__file__), 'static', 'tmp')
@@ -28,6 +34,7 @@ line_bot_api = LineBotApi('q18qYvTXmmAD0Ev66VoXVyvthWfLlCzH8SCvRSGhlnn2J10R5jSSY
 # Channel Secret
 handler = WebhookHandler('94cce48d9ade3892eb402445eb3fa676')
 
+fsms = fsm.create_fsm()
 
 # 監聽所有來自 /callback 的 Post Request
 @app.route("/callback", methods=['POST'])
@@ -43,7 +50,6 @@ def callback():
     except InvalidSignatureError:
         abort(400)
     return 'OK'
-
 
 # 處理訊息
 @handler.add(MessageEvent, message=TextMessage)
@@ -73,6 +79,22 @@ def handle_message(event):
 
 @handler.add(PostbackEvent)
 def handle_message(event):
+    uid=event.source.user_id
+    profile=line_bot_api.get_profile(uid)
+    name=profile.display_name
+    print(uid,name)
+    img = acgimgs[np.random.randint(0,len(acgimgs))]
+    if(fsms.state == "asleep"):
+        richMenuId = "richmenu-dc653454b166c2c694065736112e8701"
+        line_bot_api.link_rich_menu_to_user(uid,richMenuId)
+        fsms.wake_up()
+        line_bot_api.reply_message(event.reply_token, ImageSendMessage(img,img))
+    elif(fsms.state == "hanging out"):
+        richMenuId = "richmenu-de89ddf86b7fb76b49e9c43a88635a6d"
+        line_bot_api.link_rich_menu_to_user(uid,richMenuId)
+        fsms.done()
+        line_bot_api.reply_message(event.reply_token, ImageSendMessage(img,img))
+           
     print(event.postback.data)
 
 
