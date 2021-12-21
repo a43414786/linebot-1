@@ -1,53 +1,29 @@
 {
-    "states":["asleep","hanging out", "hungry", "sweaty", "saving the world"],
+    "states":["getimg","acgimg","memeimg"],
 
     "state":
     [
         {
-            "trigger" : "wake_up",
-            "source" : "asleep",
-            "dest" : "hanging out"
+            "trigger" : "acg",
+            "source" : "getimg",
+            "dest" : "acgimg"
         },
         {   
-            "trigger" : "work_out",
-            "source" : "hanging out",
-            "dest" : "hungry"
+            "trigger" : "back",
+            "source" : "acgimg",
+            "dest" : "getimg"
+        },
+        {
+            "trigger" : "meme",
+            "source" : "getimg",
+            "dest" : "memeimg"
         },
         {   
-            "trigger" : "done",
-            "source" : "hanging out",
-            "dest" : "asleep"
-        },
-        {
-            "trigger" : "eat",
-            "source" : "hungry",
-            "dest" : "hanging out"
-        },
-        {
-            "trigger" : "distress_call",
-            "source" : "*",
-            "dest" : "saving the world"
-        },
-        {
-            "trigger" : "complete_mission",
-            "source" : "saving the world",
-            "dest" : "sweaty"
-        },
-        {
-            "trigger" : "clean_up",
-            "source" : "sweaty",
-            "dest" : "asleep"
-        },
-        {
-            "trigger" : "clean_up",
-            "source" : "sweaty",
-            "dest" : "hanging out"
-        },
-        {
-            "trigger" : "nap",
-            "source" :  "*", 
-            "dest" : "asleep"
-        }               
+            "trigger" : "back",
+            "source" : "memeimg",
+            "dest" : "getimg"
+        }
+
     ],
-    "init" : "asleep"
+    "init" : "getimg"
 }

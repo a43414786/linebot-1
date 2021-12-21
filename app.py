@@ -55,7 +55,29 @@ def callback():
 @handler.add(MessageEvent, message=TextMessage)
 def handle_message(event):
     msg = event.message.text
-    if '最新合作廠商' in msg:
+    if(fsms.state == "getimg"):
+        if msg == "acg":
+            fsms.acg()
+            line_bot_api.reply_message(event.reply_token, TextSendMessage("準備抽ACGN"))
+        elif msg == "meme":
+            fsms.meme()
+            line_bot_api.reply_message(event.reply_token, TextSendMessage("準備抽迷因"))
+    elif(fsms.state == "acgimg"):
+        if msg == "抽":
+            img = acgimgs[np.random.randint(0,len(acgimgs))]
+            line_bot_api.reply_message(event.reply_token, ImageSendMessage(img,img))
+        elif msg == "返回":
+            fsms.back()
+            line_bot_api.reply_message(event.reply_token, TextSendMessage("返回"))
+    elif(fsms.state == "memeimg"):
+        if msg == "抽":
+            img = acgimgs[np.random.randint(0,len(acgimgs))]
+            line_bot_api.reply_message(event.reply_token, ImageSendMessage(img,img))
+        elif msg == "返回":
+            fsms.back()
+            line_bot_api.reply_message(event.reply_token, TextSendMessage("返回"))
+    
+    elif '最新合作廠商' in msg:
         message = imagemap_message()
         line_bot_api.reply_message(event.reply_token, message)
     elif '最新活動訊息' in msg:
