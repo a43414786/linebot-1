@@ -140,3 +140,6 @@ acgimgs = [
     "https://i.imgur.com/o1EZyTg.jpg",
     "https://i.imgur.com/96jcoRk.jpg" 
 ]
+memeimgs = [
+    "https://i.imgur.com/amFZdqb.jpg"
+]

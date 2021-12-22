@@ -26,6 +26,7 @@ import images
 
 
 acgimgs = images.acgimgs
+memeimgs = images.memeimgs
 
 app = Flask(__name__)
 static_tmp_path = os.path.join(os.path.dirname(__file__), 'static', 'tmp')
@@ -94,7 +95,7 @@ def handle_message(event):
             line_bot_api.reply_message(event.reply_token, TextSendMessage("返回"))
     elif(cur_fsm.state == "memeimg"):
         if "抽" in msg:
-            img = acgimgs[np.random.randint(0,len(acgimgs))]
+            img = memeimgs[np.random.randint(0,len(memeimgs))]
             line_bot_api.reply_message(event.reply_token, ImageSendMessage(img,img))
         elif "返回" in msg:
             cur_fsm.back()
