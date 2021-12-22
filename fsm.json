@@ -1,8 +1,18 @@
 {
-    "states":["getimg","acgimg","memeimg"],
+    "states":["getimg","acgimg","memeimg","boaring","play"],
 
     "state":
     [
+        {
+            "trigger" : "getimg",
+            "source" : "boaring",
+            "dest" : "getimg"
+        },
+        {   
+            "trigger" : "back",
+            "source" : "getimg",
+            "dest" : "boaring"
+        },
         {
             "trigger" : "acg",
             "source" : "getimg",
@@ -22,8 +32,18 @@
             "trigger" : "back",
             "source" : "memeimg",
             "dest" : "getimg"
+        },
+        {
+            "trigger" : "play",
+            "source" : "boaring",
+            "dest" : "play"
+        },
+        {   
+            "trigger" : "back",
+            "source" : "play",
+            "dest" : "boaring"
         }
 
     ],
-    "init" : "getimg"
+    "init" : "boaring"
 }

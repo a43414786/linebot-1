@@ -55,28 +55,64 @@ def callback():
 @handler.add(MessageEvent, message=TextMessage)
 def handle_message(event):
     msg = event.message.text
-    if(fsms.state == "getimg"):
-        if msg == "acg":
+    if(fsms.state == "boaring"):
+        if "抽圖" in msg:
+            fsms.getimg()
+            line_bot_api.reply_message(event.reply_token, TextSendMessage("選擇抽圖類型"))
+        elif "猜拳" in msg:
+            fsms.play()
+            line_bot_api.reply_message(event.reply_token, TextSendMessage("來玩猜拳吧！"))
+
+    elif(fsms.state == "getimg"):
+        if "acg" in msg:
             fsms.acg()
             line_bot_api.reply_message(event.reply_token, TextSendMessage("準備抽ACGN"))
-        elif msg == "meme":
+        
+        elif "meme" in msg:
             fsms.meme()
             line_bot_api.reply_message(event.reply_token, TextSendMessage("準備抽迷因"))
     elif(fsms.state == "acgimg"):
-        if msg == "抽":
+        if "抽" in msg:
             img = acgimgs[np.random.randint(0,len(acgimgs))]
             line_bot_api.reply_message(event.reply_token, ImageSendMessage(img,img))
-        elif msg == "返回":
+        elif "返回" in msg:
             fsms.back()
             line_bot_api.reply_message(event.reply_token, TextSendMessage("返回"))
     elif(fsms.state == "memeimg"):
-        if msg == "抽":
+        if "抽" in msg:
             img = acgimgs[np.random.randint(0,len(acgimgs))]
             line_bot_api.reply_message(event.reply_token, ImageSendMessage(img,img))
-        elif msg == "返回":
+        elif "返回" in msg:
             fsms.back()
             line_bot_api.reply_message(event.reply_token, TextSendMessage("返回"))
-    
+    elif(fsms.state == "play"):
+        if "剪刀" in msg:
+            a = np.random.randint(0,3)
+            if(a == 0):
+                line_bot_api.reply_message(event.reply_token, TextSendMessage("我出剪刀，平手呢"))
+            elif(a == 1):
+                line_bot_api.reply_message(event.reply_token, TextSendMessage("我出石頭，我贏啦"))
+            elif(a == 2):
+                line_bot_api.reply_message(event.reply_token, TextSendMessage("我出布，你贏了"))
+        elif "石頭" in msg:
+            a = np.random.randint(0,3)
+            if(a == 0):
+                line_bot_api.reply_message(event.reply_token, TextSendMessage("我出剪刀，你贏了"))
+            elif(a == 1):
+                line_bot_api.reply_message(event.reply_token, TextSendMessage("我出石頭，平手呢"))
+            elif(a == 2):
+                line_bot_api.reply_message(event.reply_token, TextSendMessage("我出布，我贏啦"))
+        elif "布" in msg:
+            a = np.random.randint(0,3)
+            if(a == 0):
+                line_bot_api.reply_message(event.reply_token, TextSendMessage("我出剪刀，我贏啦"))
+            elif(a == 1):
+                line_bot_api.reply_message(event.reply_token, TextSendMessage("我出石頭，你贏了"))
+            elif(a == 2):
+                line_bot_api.reply_message(event.reply_token, TextSendMessage("我出布，平手呢"))
+        elif "返回" in msg:
+            fsms.back()
+            line_bot_api.reply_message(event.reply_token, TextSendMessage("返回"))
     elif '最新合作廠商' in msg:
         message = imagemap_message()
         line_bot_api.reply_message(event.reply_token, message)
