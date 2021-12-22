@@ -34,7 +34,18 @@ line_bot_api = LineBotApi('q18qYvTXmmAD0Ev66VoXVyvthWfLlCzH8SCvRSGhlnn2J10R5jSSY
 # Channel Secret
 handler = WebhookHandler('94cce48d9ade3892eb402445eb3fa676')
 
-fsms = fsm.create_fsm()
+
+fsms = []
+
+fsm.create_fsm()
+
+def check_regist(uid):
+    for i in fsms:
+        if(i['name'] == uid):
+            return i['fsm']
+    new_fsm = fsm.create_fsm()
+    fsms.append({"name":uid,"fsm":new_fsm})
+    return new_fsm
 
 # 監聽所有來自 /callback 的 Post Request
 @app.route("/callback", methods=['POST'])
@@ -55,37 +66,40 @@ def callback():
 @handler.add(MessageEvent, message=TextMessage)
 def handle_message(event):
     msg = event.message.text
-    if(fsms.state == "boaring"):
+    msg = event.message.text
+    uid=event.source.user_id
+    cur_fsm = check_regist(uid)
+    if(cur_fsm.state == "boaring"):
         if "抽圖" in msg:
-            fsms.getimg()
+            cur_fsm.getimg()
             line_bot_api.reply_message(event.reply_token, TextSendMessage("選擇抽圖類型"))
         elif "猜拳" in msg:
-            fsms.play()
+            cur_fsm.play()
             line_bot_api.reply_message(event.reply_token, TextSendMessage("來玩猜拳吧！"))
 
-    elif(fsms.state == "getimg"):
+    elif(cur_fsm.state == "getimg"):
         if "acg" in msg:
-            fsms.acg()
+            cur_fsm.acg()
             line_bot_api.reply_message(event.reply_token, TextSendMessage("準備抽ACGN"))
         
         elif "meme" in msg:
-            fsms.meme()
+            cur_fsm.meme()
             line_bot_api.reply_message(event.reply_token, TextSendMessage("準備抽迷因"))
-    elif(fsms.state == "acgimg"):
+    elif(cur_fsm.state == "acgimg"):
         if "抽" in msg:
             img = acgimgs[np.random.randint(0,len(acgimgs))]
             line_bot_api.reply_message(event.reply_token, ImageSendMessage(img,img))
         elif "返回" in msg:
-            fsms.back()
+            cur_fsm.back()
             line_bot_api.reply_message(event.reply_token, TextSendMessage("返回"))
-    elif(fsms.state == "memeimg"):
+    elif(cur_fsm.state == "memeimg"):
         if "抽" in msg:
             img = acgimgs[np.random.randint(0,len(acgimgs))]
             line_bot_api.reply_message(event.reply_token, ImageSendMessage(img,img))
         elif "返回" in msg:
-            fsms.back()
+            cur_fsm.back()
             line_bot_api.reply_message(event.reply_token, TextSendMessage("返回"))
-    elif(fsms.state == "play"):
+    elif(cur_fsm.state == "play"):
         if "剪刀" in msg:
             a = np.random.randint(0,3)
             if(a == 0):
@@ -111,7 +125,7 @@ def handle_message(event):
             elif(a == 2):
                 line_bot_api.reply_message(event.reply_token, TextSendMessage("我出布，平手呢"))
         elif "返回" in msg:
-            fsms.back()
+            cur_fsm.back()
             line_bot_api.reply_message(event.reply_token, TextSendMessage("返回"))
     elif '最新合作廠商' in msg:
         message = imagemap_message()
@@ -142,15 +156,15 @@ def handle_message(event):
     name=profile.display_name
     print(uid,name)
     img = acgimgs[np.random.randint(0,len(acgimgs))]
-    if(fsms.state == "asleep"):
+    if(cur_fsm.state == "asleep"):
         richMenuId = "richmenu-dc653454b166c2c694065736112e8701"
         line_bot_api.link_rich_menu_to_user(uid,richMenuId)
-        fsms.wake_up()
+        cur_fsm.wake_up()
         line_bot_api.reply_message(event.reply_token, ImageSendMessage(img,img))
-    elif(fsms.state == "hanging out"):
+    elif(cur_fsm.state == "hanging out"):
         richMenuId = "richmenu-de89ddf86b7fb76b49e9c43a88635a6d"
         line_bot_api.link_rich_menu_to_user(uid,richMenuId)
-        fsms.done()
+        cur_fsm.done()
         line_bot_api.reply_message(event.reply_token, ImageSendMessage(img,img))
            
     print(event.postback.data)
