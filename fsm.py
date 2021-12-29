@@ -25,7 +25,6 @@ import cv2
 class Model(object):
     
     def __init__(self, states,initial):
-
         self.machine = Machine(model=self, states=states, initial=initial)
         
 def create_fsm():

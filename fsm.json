@@ -1,8 +1,73 @@
 {
-    "states":["getimg","acgimg","memeimg","boaring","play"],
+    "states":["main","hungry","getimg","acgimg","memeimg","boaring","play","signup","name","mail","check"],
 
     "state":
     [
+        {
+            "trigger" : "boaring",
+            "source" : "main",
+            "dest" : "boaring"
+        },
+        
+        {
+            "trigger" : "back",
+            "source" : "boaring",
+            "dest" : "main"
+        },
+
+        {
+            "trigger" : "hungry",
+            "source" : "main",
+            "dest" : "hungry"
+        },
+        
+        {
+            "trigger" : "back",
+            "source" : "hungry",
+            "dest" : "main"
+        },
+
+        {
+            "trigger" : "signup",
+            "source" : "signup",
+            "dest" : "name"
+        },
+        {
+            "trigger" : "back",
+            "source" : "name",
+            "dest" : "signup"
+        },
+
+        {
+            "trigger" : "name",
+            "source" : "name",
+            "dest" : "mail"
+        },
+
+        {
+            "trigger" : "back",
+            "source" : "mail",
+            "dest" : "name"
+        },
+
+        {
+            "trigger" : "check",
+            "source" : "mail",
+            "dest" : "check"
+        },
+
+        {
+            "trigger" : "back",
+            "source" : "check",
+            "dest" : "mail"
+        },
+
+        {
+            "trigger" : "done",
+            "source" : "check",
+            "dest" : "main"
+        },
+
         {
             "trigger" : "getimg",
             "source" : "boaring",
@@ -45,5 +110,5 @@
         }
 
     ],
-    "init" : "boaring"
+    "init" : "signup"
 }

@@ -42,11 +42,12 @@ fsm.create_fsm()
 
 def check_regist(uid):
     for i in fsms:
-        if(i['name'] == uid):
-            return i['fsm']
+        if(i['uid'] == uid):
+            return i
     new_fsm = fsm.create_fsm()
-    fsms.append({"name":uid,"fsm":new_fsm})
-    return new_fsm
+    new = {"uid":uid,"fsm":new_fsm,"name":'',"mail":''}
+    fsms.append(new)
+    return new
 
 # 監聽所有來自 /callback 的 Post Request
 @app.route("/callback", methods=['POST'])
@@ -69,7 +70,8 @@ def handle_message(event):
     msg = event.message.text
     msg = event.message.text
     uid=event.source.user_id
-    cur_fsm = check_regist(uid)
+    register = check_regist(uid)
+    cur_fsm = register['fsm']
     if(cur_fsm.state == "boaring"):
         if "抽圖" in msg:
             cur_fsm.getimg()
@@ -77,6 +79,9 @@ def handle_message(event):
         elif "猜拳" in msg:
             cur_fsm.play()
             line_bot_api.reply_message(event.reply_token, TextSendMessage("來玩猜拳吧！"))
+        elif "返回" in msg:
+            cur_fsm.back()
+            line_bot_api.reply_message(event.reply_token, TextSendMessage("返回"))
 
     elif(cur_fsm.state == "getimg"):
         if "acg" in msg:
@@ -128,6 +133,49 @@ def handle_message(event):
         elif "返回" in msg:
             cur_fsm.back()
             line_bot_api.reply_message(event.reply_token, TextSendMessage("返回"))
+
+    
+    elif cur_fsm.state == "signup":
+        if '註冊' in msg:
+            cur_fsm.signup()
+            line_bot_api.reply_message(event.reply_token, TextSendMessage("請輸入姓名"))
+        else:
+            line_bot_api.reply_message(event.reply_token, TextSendMessage("請註冊後開始使用(輸入\"註冊\"以開始註冊)"))
+        
+    elif cur_fsm.state == "name":
+        if "返回" in msg:
+            cur_fsm.back()
+            line_bot_api.reply_message(event.reply_token, TextSendMessage("返回"))
+        else:
+            register['name'] = msg
+            cur_fsm.name()
+            line_bot_api.reply_message(event.reply_token, TextSendMessage("請輸入Email"))
+    elif cur_fsm.state == "mail":
+        if "返回" in msg:
+            cur_fsm.back()
+            line_bot_api.reply_message(event.reply_token, TextSendMessage("請輸入姓名"))
+        else:
+            register['mail'] = msg
+            cur_fsm.check()
+            line_bot_api.reply_message(event.reply_token, TextSendMessage("姓名:"+register['name']+"\nEmail:"+register['mail']+"\n請問正確嗎?(yes or no)"))
+            
+    elif cur_fsm.state == "check":
+        if "yes" in msg:
+            cur_fsm.done()
+            line_bot_api.reply_message(event.reply_token, TextSendMessage("註冊成功，可以開始使用了!"))
+        elif 'no' in msg:
+            cur_fsm.back()
+            line_bot_api.reply_message(event.reply_token, TextSendMessage("請輸入Email"))
+            
+    elif cur_fsm.state == 'main':
+        if '無聊' in msg:
+            cur_fsm.boaring()
+            line_bot_api.reply_message(event.reply_token, TextSendMessage("來點娛樂吧!"))
+        elif '餓' in msg:
+            cur_fsm.hungry()
+            line_bot_api.reply_message(event.reply_token, TextSendMessage("想吃什麼呢?"))
+    
+
     elif '最新合作廠商' in msg:
         message = imagemap_message()
         line_bot_api.reply_message(event.reply_token, message)
