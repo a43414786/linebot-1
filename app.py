@@ -68,113 +68,83 @@ def callback():
 @handler.add(MessageEvent, message=TextMessage)
 def handle_message(event):
     msg = event.message.text
-    msg = event.message.text
     uid=event.source.user_id
     register = check_regist(uid)
     cur_fsm = register['fsm']
+    '''
+    line_bot_api.reply_message(event.reply_token,LocationSendMessage( 
+        type = 'location',
+        title = 'my location',
+        address = "〒150-0002 東京都渋谷区渋谷２丁目２１−１",
+        latitude = 35.65910807942215,
+        longitude = 139.70372892916203
+    ))
+    line_bot_api.reply_message(event.reply_token, TextSendMessage(stock_data('2021/12/30',name = msg,mode = 1)))
+    '''
+    
     if(cur_fsm.state == "boaring"):
-        if "抽圖" in msg:
-            cur_fsm.getimg()
-            line_bot_api.reply_message(event.reply_token, TextSendMessage("選擇抽圖類型"))
-        elif "猜拳" in msg:
-            cur_fsm.play()
-            line_bot_api.reply_message(event.reply_token, TextSendMessage("來玩猜拳吧！"))
-        elif "返回" in msg:
-            cur_fsm.back()
-            line_bot_api.reply_message(event.reply_token, TextSendMessage("返回"))
+
+        boaring(msg,cur_fsm,line_bot_api,event)
 
     elif(cur_fsm.state == "getimg"):
-        if "acg" in msg:
-            cur_fsm.acg()
-            line_bot_api.reply_message(event.reply_token, TextSendMessage("準備抽ACGN"))
-        
-        elif "meme" in msg:
-            cur_fsm.meme()
-            line_bot_api.reply_message(event.reply_token, TextSendMessage("準備抽迷因"))
-    elif(cur_fsm.state == "acgimg"):
-        if "抽" in msg:
-            img = acgimgs[np.random.randint(0,len(acgimgs))]
-            line_bot_api.reply_message(event.reply_token, ImageSendMessage(img,img))
-        elif "返回" in msg:
-            cur_fsm.back()
-            line_bot_api.reply_message(event.reply_token, TextSendMessage("返回"))
-    elif(cur_fsm.state == "memeimg"):
-        if "抽" in msg:
-            img = memeimgs[np.random.randint(0,len(memeimgs))]
-            line_bot_api.reply_message(event.reply_token, ImageSendMessage(img,img))
-        elif "返回" in msg:
-            cur_fsm.back()
-            line_bot_api.reply_message(event.reply_token, TextSendMessage("返回"))
-    elif(cur_fsm.state == "play"):
-        if "剪刀" in msg:
-            a = np.random.randint(0,3)
-            if(a == 0):
-                line_bot_api.reply_message(event.reply_token, TextSendMessage("我出剪刀，平手呢"))
-            elif(a == 1):
-                line_bot_api.reply_message(event.reply_token, TextSendMessage("我出石頭，我贏啦"))
-            elif(a == 2):
-                line_bot_api.reply_message(event.reply_token, TextSendMessage("我出布，你贏了"))
-        elif "石頭" in msg:
-            a = np.random.randint(0,3)
-            if(a == 0):
-                line_bot_api.reply_message(event.reply_token, TextSendMessage("我出剪刀，你贏了"))
-            elif(a == 1):
-                line_bot_api.reply_message(event.reply_token, TextSendMessage("我出石頭，平手呢"))
-            elif(a == 2):
-                line_bot_api.reply_message(event.reply_token, TextSendMessage("我出布，我贏啦"))
-        elif "布" in msg:
-            a = np.random.randint(0,3)
-            if(a == 0):
-                line_bot_api.reply_message(event.reply_token, TextSendMessage("我出剪刀，我贏啦"))
-            elif(a == 1):
-                line_bot_api.reply_message(event.reply_token, TextSendMessage("我出石頭，你贏了"))
-            elif(a == 2):
-                line_bot_api.reply_message(event.reply_token, TextSendMessage("我出布，平手呢"))
-        elif "返回" in msg:
-            cur_fsm.back()
-            line_bot_api.reply_message(event.reply_token, TextSendMessage("返回"))
 
-    
+        getimg(msg,cur_fsm,line_bot_api,event)
+
+    elif(cur_fsm.state == "acgimg"):
+
+        acgimg(msg,cur_fsm,line_bot_api,event)
+
+    elif(cur_fsm.state == "memeimg"):
+
+        memeimg(msg,cur_fsm,line_bot_api,event)
+
+    elif(cur_fsm.state == "play"):
+        
+        play(msg,cur_fsm,line_bot_api,event)
+
     elif cur_fsm.state == "signup":
-        if '註冊' in msg:
-            cur_fsm.signup()
-            line_bot_api.reply_message(event.reply_token, TextSendMessage("請輸入姓名"))
-        else:
-            line_bot_api.reply_message(event.reply_token, TextSendMessage("請註冊後開始使用(輸入\"註冊\"以開始註冊)"))
+        
+        signup(msg,cur_fsm,line_bot_api,event)
         
     elif cur_fsm.state == "name":
-        if "返回" in msg:
-            cur_fsm.back()
-            line_bot_api.reply_message(event.reply_token, TextSendMessage("返回"))
-        else:
-            register['name'] = msg
-            cur_fsm.name()
-            line_bot_api.reply_message(event.reply_token, TextSendMessage("請輸入Email"))
-    elif cur_fsm.state == "mail":
-        if "返回" in msg:
-            cur_fsm.back()
-            line_bot_api.reply_message(event.reply_token, TextSendMessage("請輸入姓名"))
-        else:
-            register['mail'] = msg
-            cur_fsm.check()
-            line_bot_api.reply_message(event.reply_token, TextSendMessage("姓名:"+register['name']+"\nEmail:"+register['mail']+"\n請問正確嗎?(yes or no)"))
-            
-    elif cur_fsm.state == "check":
-        if "yes" in msg:
-            cur_fsm.done()
-            line_bot_api.reply_message(event.reply_token, TextSendMessage("註冊成功，可以開始使用了!"))
-        elif 'no' in msg:
-            cur_fsm.back()
-            line_bot_api.reply_message(event.reply_token, TextSendMessage("請輸入Email"))
-            
-    elif cur_fsm.state == 'main':
-        if '無聊' in msg:
-            cur_fsm.boaring()
-            line_bot_api.reply_message(event.reply_token, TextSendMessage("來點娛樂吧!"))
-        elif '餓' in msg:
-            cur_fsm.hungry()
-            line_bot_api.reply_message(event.reply_token, TextSendMessage("想吃什麼呢?"))
+
+        name(msg,cur_fsm,line_bot_api,event,register)
     
+    elif cur_fsm.state == "mail":
+        
+        mail(msg,cur_fsm,line_bot_api,event,register)    
+    
+    elif cur_fsm.state == "check":
+
+        check(msg,cur_fsm,line_bot_api,event)
+
+    elif cur_fsm.state == 'main':
+
+        main(msg,cur_fsm,line_bot_api,event)
+
+    
+    elif cur_fsm.state == 'stock':
+
+        stock(msg,cur_fsm,line_bot_api,event)
+
+    elif cur_fsm.state == 'stock_date':
+
+        stock_date(msg,cur_fsm,line_bot_api,event)
+
+    elif cur_fsm.state == 'stock_id':
+
+        stock_id(msg,cur_fsm,line_bot_api,event)
+
+    elif cur_fsm.state == 'stock_name':
+
+        stock_name(msg,cur_fsm,line_bot_api,event)
+
+    elif cur_fsm.state == 'stock_end':
+
+        stock_end(msg,cur_fsm,line_bot_api,event)
+
+    
+
 
     elif '最新合作廠商' in msg:
         message = imagemap_message()

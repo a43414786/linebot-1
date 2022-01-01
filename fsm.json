@@ -1,8 +1,80 @@
 {
-    "states":["main","hungry","getimg","acgimg","memeimg","boaring","play","signup","name","mail","check"],
+    "states":["main","stock_end","stock_name","stock_id","stock","stock_date","hungry","getimg","acgimg","memeimg","boaring","play","signup","name","mail","check"],
 
     "state":
     [
+        {
+            "trigger" : "end",
+            "source" : "stock_end",
+            "dest" : "stock"
+        },
+
+        {
+            "trigger" : "info",
+            "source" : "stock_name",
+            "dest" : "stock_end"
+        },
+        {
+            "trigger" : "info",
+            "source" : "stock_id",
+            "dest" : "stock_end"
+        },
+        {
+            "trigger" : "back",
+            "source" : "stock_end",
+            "dest" : "stock_name"
+        },
+        {
+            "trigger" : "back",
+            "source" : "stock_end",
+            "dest" : "stock_id"
+        },
+        
+
+        {
+            "trigger" : "stock_name",
+            "source" : "stock_date",
+            "dest" : "stock_name"
+        },
+        {
+            "trigger" : "back",
+            "source" : "stock_name",
+            "dest" : "stock_date"
+        },
+        {
+            "trigger" : "stock_id",
+            "source" : "stock_date",
+            "dest" : "stock_id"
+        },
+        {
+            "trigger" : "back",
+            "source" : "stock_id",
+            "dest" : "stock_date"
+        },
+
+        {
+            "trigger" : "stock_date",
+            "source" : "stock",
+            "dest" : "stock_date"
+        },
+
+        {
+            "trigger" : "back",
+            "source" : "stock_date",
+            "dest" : "stock"
+        },
+        {
+            "trigger" : "stock",
+            "source" : "main",
+            "dest" : "stock"
+        },
+
+        {
+            "trigger" : "back",
+            "source" : "stock",
+            "dest" : "main"
+        },
+
         {
             "trigger" : "boaring",
             "source" : "main",
@@ -110,5 +182,5 @@
         }
 
     ],
-    "init" : "signup"
+    "init" : "main"
 }
