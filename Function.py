@@ -1,7 +1,7 @@
 from linebot import (LineBotApi, WebhookHandler)
 from linebot.exceptions import (InvalidSignatureError)
 from linebot.models import *
-from app import acgimgs,memeimgs
+from images import acgimgs,memeimgs
 import numpy as np
 import os
 import pickle as pkl
@@ -12,7 +12,7 @@ import time
 from bs4 import BeautifulSoup
 
 def stock_data(date,id = '0050',name = '元大台灣50',mode = 0):
-    date = date.replace('/','')
+    date = date.replace('-','')
 
     if(mode):
         labels = ['證券代號','證券名稱','成交股數','成交筆數','成交金額','開盤價','最高價','最低價',
@@ -77,6 +77,7 @@ def stock_data(date,id = '0050',name = '元大台灣50',mode = 0):
         url = 'https://www.twse.com.tw/exchangeReport/MI_INDEX?response=html&date=' + str(date) + '&type=ALLBUT0999'
         response = requests.get(url)
         soup = BeautifulSoup(response.text, 'html.parser')
+        print(soup.text)
         if ('很抱歉，沒有符合條件的資料!' in soup.text):
             pkl.dump("很抱歉，沒有符合條件的資料!",open(os.path.join('stock_infos',date + '.pkl'),'wb'))
             return "很抱歉，沒有符合條件的資料!"
@@ -128,16 +129,50 @@ def getimg(msg,cur_fsm,line_bot_api,event):
 
 def acgimg(msg,cur_fsm,line_bot_api,event):
     if "抽" in msg:
-        img = acgimgs[np.random.randint(0,len(acgimgs))]
-        line_bot_api.reply_message(event.reply_token, ImageSendMessage(img,img))
+        img_idx = np.random.randint(0,len(acgimgs),10)
+        columns = []
+        for i in range(10):
+            columns.append(
+                ImageCarouselColumn(
+                    image_url=acgimgs[img_idx[i]],
+                    action=URITemplateAction(
+                        uri=acgimgs[img_idx[i]]
+                    )
+                )
+            )
+
+        message = TemplateSendMessage(
+            alt_text='圖片旋轉木馬',
+            template=ImageCarouselTemplate(
+                columns=columns
+            )
+        )
+        line_bot_api.reply_message(event.reply_token, message)
     elif "返回" in msg:
         cur_fsm.back()
         line_bot_api.reply_message(event.reply_token, TextSendMessage("返回"))
 
 def memeimg(msg,cur_fsm,line_bot_api,event):
     if "抽" in msg:
-        img = memeimgs[np.random.randint(0,len(memeimgs))]
-        line_bot_api.reply_message(event.reply_token, ImageSendMessage(img,img))
+        img_idx = np.random.randint(0,len(memeimgs),10)
+        columns = []
+        for i in range(10):
+            columns.append(
+                ImageCarouselColumn(
+                    image_url=memeimgs[img_idx[i]],
+                    action=URITemplateAction(
+                        uri=memeimgs[img_idx[i]]
+                    )
+                )
+            )
+
+        message = TemplateSendMessage(
+            alt_text='圖片旋轉木馬',
+            template=ImageCarouselTemplate(
+                columns=columns
+            )
+        )
+        line_bot_api.reply_message(event.reply_token, message)
     elif "返回" in msg:
         cur_fsm.back()
         line_bot_api.reply_message(event.reply_token, TextSendMessage("返回"))
@@ -213,7 +248,7 @@ def main(msg,cur_fsm,line_bot_api,event):
         line_bot_api.reply_message(event.reply_token, TextSendMessage("想吃什麼呢?"))
     elif '股票' in msg:
         cur_fsm.stock()
-        line_bot_api.reply_message(event.reply_token, TextSendMessage("請輸入欲查詢日期(EX:2022/01/01)"))
+        line_bot_api.reply_message(event.reply_token, test())#TextSendMessage("請輸入欲查詢日期(EX:2022/01/01)"))
 
 def stock(msg,cur_fsm,line_bot_api,event):
     global Stock_date
@@ -265,13 +300,47 @@ def stock_end(msg,cur_fsm,line_bot_api,event):
     global Stock_mode
     if '結束' in msg:
         cur_fsm.end()
-        line_bot_api.reply_message(event.reply_token, TextSendMessage("請輸入欲查詢日期(EX:2022/01/01)"))
+        line_bot_api.reply_message(event.reply_token, test())
     else:
         cur_fsm.back()
         if(Stock_mode):
             stock_name(msg,cur_fsm,line_bot_api,event)
         else:
             stock_id(msg,cur_fsm,line_bot_api,event)
+
+def test():
+    message = TemplateSendMessage(
+        alt_text='好消息來囉～',
+        template=ButtonsTemplate(
+            thumbnail_image_url="https://pic2.zhimg.com/v2-de4b8114e8408d5265503c8b41f59f85_b.jpg",
+            title="是否要進行抽獎活動？",
+            text="輸入生日後即獲得抽獎機會",
+            actions=[
+                DatetimePickerTemplateAction(
+                    label="請選擇欲查詢日期",
+                    data="stock_date",
+                    mode='date',
+                    initial='2012-01-01',
+                    min = '2012-01-01'
+                ),
+
+                PostbackTemplateAction(
+                    label="由證券代號(EX:0050)查詢",
+                    data="0",
+                    text = '由證券代號查詢'
+                ),
+                
+                PostbackTemplateAction(
+                    label="由證券名稱(EX:元大台灣50)",
+                    data="1",
+                    text = '由證券名稱查詢'
+                )
+            ]
+        )
+    )
+    return message
+
+
 
 def function_list():
     message = TemplateSendMessage(

@@ -11,7 +11,6 @@ from linebot.models import *
 
 #======這裡是呼叫的檔案內容=====
 from message import *
-from new import *
 from Function import *
 #======這裡是呼叫的檔案內容=====
 
@@ -119,7 +118,29 @@ def handle_message(event):
         check(msg,cur_fsm,line_bot_api,event)
 
     elif cur_fsm.state == 'main':
-
+        if '最新合作廠商' in msg:
+            message = imagemap_message()
+            line_bot_api.reply_message(event.reply_token, message)
+        elif '最新活動訊息' in msg:
+            message = test()
+            line_bot_api.reply_message(event.reply_token, message)
+        elif '註冊會員' in msg:
+            message = Confirm_Template()
+            line_bot_api.reply_message(event.reply_token, message)
+        elif '旋轉木馬' in msg:
+            message = Carousel_Template()
+            line_bot_api.reply_message(event.reply_token, message)
+        elif '圖片畫廊' in msg:
+            message = Carousel_Template()
+            line_bot_api.reply_message(event.reply_token, message)
+        elif '功能列表' in msg:
+            message = function_list()
+            line_bot_api.reply_message(event.reply_token, message)
+        '''
+        else:
+            message = TextSendMessage(text=msg)
+            line_bot_api.reply_message(event.reply_token, message)
+        '''
         main(msg,cur_fsm,line_bot_api,event)
 
     
@@ -146,34 +167,14 @@ def handle_message(event):
     
 
 
-    elif '最新合作廠商' in msg:
-        message = imagemap_message()
-        line_bot_api.reply_message(event.reply_token, message)
-    elif '最新活動訊息' in msg:
-        message = buttons_message()
-        line_bot_api.reply_message(event.reply_token, message)
-    elif '註冊會員' in msg:
-        message = Confirm_Template()
-        line_bot_api.reply_message(event.reply_token, message)
-    elif '旋轉木馬' in msg:
-        message = Carousel_Template()
-        line_bot_api.reply_message(event.reply_token, message)
-    elif '圖片畫廊' in msg:
-        message = test()
-        line_bot_api.reply_message(event.reply_token, message)
-    elif '功能列表' in msg:
-        message = function_list()
-        line_bot_api.reply_message(event.reply_token, message)
-    else:
-        message = TextSendMessage(text=msg)
-        line_bot_api.reply_message(event.reply_token, message)
+    
 
 @handler.add(PostbackEvent)
 def handle_message(event):
     uid=event.source.user_id
-    profile=line_bot_api.get_profile(uid)
-    name=profile.display_name
-    print(uid,name)
+    register = check_regist(uid)
+    cur_fsm = register['fsm']
+    '''
     img = acgimgs[np.random.randint(0,len(acgimgs))]
     if(cur_fsm.state == "asleep"):
         richMenuId = "richmenu-dc653454b166c2c694065736112e8701"
@@ -185,8 +186,15 @@ def handle_message(event):
         line_bot_api.link_rich_menu_to_user(uid,richMenuId)
         cur_fsm.done()
         line_bot_api.reply_message(event.reply_token, ImageSendMessage(img,img))
-           
-    print(event.postback.data)
+    '''       
+    if cur_fsm.state == 'stock':
+
+        stock(event.postback.params['date'],cur_fsm,line_bot_api,event)
+
+    elif cur_fsm.state == 'stock_date':
+
+        stock_date(event.postback.data,cur_fsm,line_bot_api,event)
+
 
 
 @handler.add(MemberJoinedEvent)
